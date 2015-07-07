@@ -5,8 +5,7 @@ var app = require('express')(),
     server = require('http').createServer(app),
     io = require('socket.io').listen(server);
 
-io.set('log level', 1);
-server.listen(80, '0.0.0.0');
+server.listen(1124, '0.0.0.0');
 
 app.use(function(req, res, next) {
     // Website you wish to allow to connect
@@ -45,8 +44,7 @@ net.createServer(function(sock) {
         io.emit('data', msg);
     });
     sock.on('close', function(data) {
-        console.log('CLOSED: ' +
-            sock.remoteAddress + ' ' + sock.remotePort);
+        // console.log('CLOSED: ' + sock.remoteAddress + ' ' + sock.remotePort);
     });
 }).listen(PORT, HOST);
 

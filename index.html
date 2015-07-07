@@ -20,7 +20,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var id = 0;
-        var socket = io.connect('http://localhost');
+        var socket = io.connect('http://debug.gupiaoxianji.com:1124');
         socket.on('data', function(data) {
             msg = id + ':' + data
             log(msg);
