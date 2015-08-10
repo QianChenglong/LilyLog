@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>LilyLog</title>
+    <style>
+        p {
+            padding: 10px;
+            word-wrap: break-word;
+            background: #eee;
+            /* margin-bottom: 0px; */
+            /* margin-top: 0px; */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="output"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var id = 0;
+        var socket = io.connect(window.location.host);
+        socket.on('data', function(data) {
+            msg = id + ':' + data
+            log(msg);
+            //console.log(data);
+            //socket.emit('my other event', {
+            //    my: 'data'
+            //});
+            id++;
+        });
+
+        function log(msg) {
+            var output = document.getElementById("output");
+            var p = document.createElement("p");
+            p.textContent = msg;
+            output.appendChild(p);
+            console.log(msg);
+        }
+    </script>
+</body>
+
+</html>
