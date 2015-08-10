@@ -13,13 +13,9 @@
 
 int main(int argc,char* argv[])
 {
-    std::string errmsg;
-    if (LilyLog::Logger::init(true, errmsg) == false) {
-        std::cout << errmsg << std::endl;
-        return -1;
-    }
+    LilyLog::Logger::init(true);
 
-    LilyLog::Logger::log();
+    LilyLog::Logger::log("Hello World");
 
     return 0;
 }

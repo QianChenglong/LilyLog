@@ -2,8 +2,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <iostream>
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -13,7 +11,9 @@
 namespace LilyLog {
 
 Logger *Logger::instance_ = NULL;
-int Logger::client_sock = -1;
+int Logger::client_sock_ = -1;
+bool Logger::enable_ = false;
+sockaddr_in Logger::server_addr_;
 
 
 Logger *Logger::instance()
@@ -22,8 +22,7 @@ Logger *Logger::instance()
         return instance_;
     }
 
-    std::string errmsg;
-    Logger::init(false, errmsg);
+    Logger::init(false);
 
     return Logger::instance_;
 }
@@ -41,41 +40,35 @@ std::string addr_str(struct sockaddr_in &addr)
     return buf;
 }
 
-bool Logger::init(bool enable, std::string &errmsg)
+void Logger::init(bool enable)
 {
-    if (Logger::instance_ != NULL) {
-        return true;
-    }
-
     Logger::instance_ = new Logger();
-
-    // 创建套接字
-    client_sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (client_sock == -1) {
-        errmsg = std::string("create socket error:") + strerror(errno);
-        return false;
+    Logger::instance_->enable_ = enable;
+    if (enable == false) {
+        return;
     }
 
-    // 服务器地址
-    struct sockaddr_in server_addr;
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(6969);
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    // 连接服务器
-    if (connect(client_sock, (sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
-        errmsg = "connect to [" + addr_str(server_addr) + "] fail:" + strerror(errno);
-        return false;
+    client_sock_ = socket(AF_INET, SOCK_DGRAM, 0);
+    if (client_sock_ == -1) {
+        Logger::instance_->enable_ = false;
     }
-    std::cout << addr_str(server_addr) << std::endl;
 
-    return true;
+    server_addr_.sin_family = AF_INET;
+    server_addr_.sin_port = htons(LILYLOG_SERVER_PORT);
+    server_addr_.sin_addr.s_addr = inet_addr(LILYLOG_SERVER_IP);
 }
 
-void Logger::log()
+void Logger::log(const char *buf, const uint32_t len)
 {
-    char buf[] = "Hello world";
-    send(client_sock, buf, sizeof(buf), 0);
+    if (enable_ == false) {
+        return;
+    }
+    sendto(client_sock_, buf, len, 0, (sockaddr*)&server_addr_, sizeof(sockaddr));
+}
+
+void Logger::log(const std::string &msg)
+{
+    Logger::instance()->log(msg.c_str(), msg.size());
 }
 
 };

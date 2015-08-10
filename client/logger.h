@@ -3,7 +3,11 @@
 
 #include <string>
 
+#include <netinet/in.h>
 
+
+#define LILYLOG_SERVER_IP "127.0.0.1"
+#define LILYLOG_SERVER_PORT 6969
 namespace LilyLog {
 // #define MakePrefix(fmt) std::string(__FUNCTION__).append("() : ").append(fmt).c_str()
 
@@ -16,15 +20,18 @@ namespace LilyLog {
 class Logger {
 public:
     static Logger* instance();
-    static bool init(bool enable, std::string &errmsg);
+    static void init(bool enable);
 
-    static void log();
+    static void log(const char *buf, const uint32_t len);
+    static void log(const std::string &msg);
 private:
     Logger();
 
 private:
     static Logger *instance_;
-    static int client_sock;
+    static bool enable_;
+    static int client_sock_;
+    static sockaddr_in server_addr_;
 };
 
 };
